@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "285464161019",
+    "project_id": "authenticate-1f3f6",
+    "storage_bucket": "authenticate-1f3f6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:285464161019:android:0c1484ea537d1228db5e5e",
+        "android_client_info": {
+          "package_name": "com.shaswat.authenticate"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBrrp71mgUvhVp8Q0VGLfJ5ErzAyUwo8yw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
