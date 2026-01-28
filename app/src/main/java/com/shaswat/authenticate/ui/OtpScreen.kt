@@ -11,6 +11,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
@@ -33,21 +34,37 @@ fun OtpScreen(
         mutableStateOf(TextFieldValue(""))
     }
     var timeRemaining by remember { mutableStateOf(60L) }
-    var otpKey by remember { mutableStateOf(0) }
     val otpValue = authViewModel.otp.collectAsState().value
     val context = LocalContext.current
     val scrollState = rememberScrollState()
+    val keyboardController = LocalSoftwareKeyboardController.current
+    var shouldShowToast by remember { mutableStateOf(false) }
+    val isMaxAttemptsExceeded = errorMessage?.contains("Maximum attempts exceeded") == true
 
     // Countdown timer effect
-    LaunchedEffect(email,generatedAt) {
+    LaunchedEffect(email, generatedAt) {
         timeRemaining = getRemainingTime(email)
+        shouldShowToast = true  // Show toast when new OTP is generated
         while (timeRemaining > 0) {
-            delay(1000L) // Wait 1 second
+            delay(1000L)
             timeRemaining = getRemainingTime(email)
         }
     }
-    LaunchedEffect(otpKey) {
-        Toast.makeText(context, "OTP: $otpValue ", Toast.LENGTH_LONG).show()
+
+    // Show toast only when needed
+    LaunchedEffect(generatedAt) {
+        if (shouldShowToast && otpValue.isNotEmpty()) {
+            Toast.makeText(context, "Your OTP: $otpValue", Toast.LENGTH_LONG).show()
+            shouldShowToast = false
+        }
+    }
+
+    // Clear OTP field when error message appears
+    LaunchedEffect(errorMessage) {
+        if (errorMessage != null) {
+            otp = TextFieldValue("")  // Clear the field
+            keyboardController?.hide()  // Close keyboard
+        }
     }
 
     Column(
@@ -127,8 +144,8 @@ fun OtpScreen(
                 .padding(bottom = 16.dp),
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            enabled = !isLoading && timeRemaining > 0,
-            isError = errorMessage != null
+            enabled = !isLoading && timeRemaining > 0 && !isMaxAttemptsExceeded,
+            isError = errorMessage != null  // ← Show error state
         )
 
         // Error Message
@@ -147,9 +164,7 @@ fun OtpScreen(
             onClick = {
                 if (otp.text.length == 6) {
                     onVerifyOtp(email, otp.text)
-                }
-                if (errorMessage != null){
-                    otp = TextFieldValue("")
+                    keyboardController?.hide()  // Close keyboard when verifying
                 }
             },
             modifier = Modifier
@@ -174,7 +189,7 @@ fun OtpScreen(
             onClick = {
                 otp = TextFieldValue("")
                 onResendOtp(email)
-
+                keyboardController?.hide()  // Close keyboard on resend
             },
             enabled = !isLoading
         ) {

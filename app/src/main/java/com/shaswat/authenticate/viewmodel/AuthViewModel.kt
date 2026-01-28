@@ -89,19 +89,30 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                 }
 
                 is ValidationResult.Incorrect -> {
-                    val message = "Incorrect OTP. ${result.remainingAttempts} attempts remaining"
+                    val remaining = result.remainingAttempts
+                    val message = "Incorrect OTP. $remaining ${if (remaining == 1) "attempt" else "attempts"} remaining"
+
                     analyticsLogger.logOtpValidationFailure(email, "incorrect_otp")
-                    _authState.value = AuthState.OtpError(message,email,generatedAt)
+
+                    _authState.value = AuthState.OtpError(
+                        message = message,
+                        email = currentEmail,
+                        generatedAt = generatedAt
+                    )
+                }
+
+                is ValidationResult.MaxAttemptsExceeded -> {
+                    analyticsLogger.logOtpValidationFailure(email, "max_attempts")
+                    _authState.value = AuthState.OtpError(
+                        message = "Maximum attempts exceeded. Please request a new OTP",
+                        email = currentEmail,
+                        generatedAt = generatedAt
+                    )
                 }
 
                 is ValidationResult.Expired -> {
                     analyticsLogger.logOtpValidationFailure(email, "expired")
                     _authState.value = AuthState.OtpError("OTP has expired. Please request a new one",email,generatedAt)
-                }
-
-                is ValidationResult.MaxAttemptsExceeded -> {
-                    analyticsLogger.logOtpValidationFailure(email, "max_attempts")
-                    _authState.value = AuthState.OtpError("Maximum attempts exceeded. Please request a new OTP",email,generatedAt)
                 }
 
                 is ValidationResult.NoOtpFound -> {

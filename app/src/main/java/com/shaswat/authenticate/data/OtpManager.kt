@@ -40,32 +40,35 @@ class OtpManager {
      * Returns a ValidationResult indicating success or failure reason
      */
     fun validateOtp(email: String, enteredOtp: String): ValidationResult {
-        // Check if OTP exists for this email
         val otpData = otpStorage[email]
             ?: return ValidationResult.NoOtpFound
 
-        // Check if OTP has expired (60 seconds)
         val currentTime = System.currentTimeMillis()
         val timePassed = currentTime - otpData.generatedAt
 
         if (timePassed > OTP_EXPIRY_DURATION) {
             return ValidationResult.Expired
         }
-
-        // Check if max attempts exceeded
         if (otpData.attempts >= otpData.maxAttempts) {
             return ValidationResult.MaxAttemptsExceeded
         }
 
-        // Check if OTP matches
         return if (otpData.code == enteredOtp) {
-            // Success! Remove OTP from storage (one-time use)
             otpStorage.remove(email)
             ValidationResult.Success
         } else {
-            // Wrong OTP - increment attempt count
-            otpStorage[email] = otpData.copy(attempts = otpData.attempts + 1)
-            ValidationResult.Incorrect(remainingAttempts = otpData.maxAttempts - otpData.attempts - 1)
+            // Increment attempts
+            val newAttempts = otpData.attempts + 1
+            otpStorage[email] = otpData.copy(attempts = newAttempts)
+
+            val remainingAttempts = otpData.maxAttempts - newAttempts
+
+            if (remainingAttempts > 0) {
+                ValidationResult.Incorrect(remainingAttempts = remainingAttempts)
+            } else {
+                // This was the last attempt, now exceeded
+                ValidationResult.MaxAttemptsExceeded
+            }
         }
     }
 
