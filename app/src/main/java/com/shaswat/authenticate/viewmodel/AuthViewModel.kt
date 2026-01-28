@@ -17,14 +17,12 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     private val otpManager = OtpManager()
     private val analyticsLogger = AnalyticsLogger(application)
 
-    // State that UI observes
     private val _authState = MutableStateFlow<AuthState>(AuthState.Initial)
     val authState: StateFlow<AuthState> = _authState.asStateFlow()
 
     private val _otp = MutableStateFlow<String>("")
     val otp : StateFlow<String> = _otp
 
-    // Current email being processed
     private var currentEmail: String = ""
     private var generatedAt: Long = 0L
 
@@ -61,9 +59,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             // Log to Firebase
             analyticsLogger.logOtpGenerated(email)
 
-            // In real app, you'd send this via SMS/Email
-            // For testing, let's print it
-            println("🔐 OTP for $email: $otpCode")
+            // In real app, otp will be sent via SMS/Email
             _otp.value = otpCode
 
             _authState.value = AuthState.OtpSent(email)
@@ -123,9 +119,6 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    /**
-     * Logs out the user
-     */
     private fun logout() {
         viewModelScope.launch {
             val currentState = _authState.value
@@ -139,25 +132,16 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    /**
-     * Clears error state
-     */
     private fun clearError() {
         if (_authState.value is AuthState.OtpError) {
             _authState.value = AuthState.OtpSent(currentEmail)
         }
     }
 
-    /**
-     * Gets remaining time for current OTP
-     */
     fun getRemainingTime(email: String): Long {
         return otpManager.getRemainingTime(email)
     }
 
-    /**
-     * Simple email validation
-     */
     private fun isValidEmail(email: String): Boolean {
         return email.isNotBlank() &&
                 email.contains("@") &&

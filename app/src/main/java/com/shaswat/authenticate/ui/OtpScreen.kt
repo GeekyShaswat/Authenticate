@@ -44,7 +44,7 @@ fun OtpScreen(
     // Countdown timer effect
     LaunchedEffect(email, generatedAt) {
         timeRemaining = getRemainingTime(email)
-        shouldShowToast = true  // Show toast when new OTP is generated
+        shouldShowToast = true
         while (timeRemaining > 0) {
             delay(1000L)
             timeRemaining = getRemainingTime(email)
@@ -59,11 +59,10 @@ fun OtpScreen(
         }
     }
 
-    // Clear OTP field when error message appears
     LaunchedEffect(errorMessage) {
         if (errorMessage != null) {
-            otp = TextFieldValue("")  // Clear the field
-            keyboardController?.hide()  // Close keyboard
+            otp = TextFieldValue("")
+            keyboardController?.hide()
         }
     }
 
@@ -94,7 +93,6 @@ fun OtpScreen(
             modifier = Modifier.padding(bottom = 32.dp)
         )
 
-        // Timer Display
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -129,7 +127,6 @@ fun OtpScreen(
             }
         }
 
-        // OTP Input Field
         OutlinedTextField(
             value = otp,
             onValueChange = {
@@ -145,10 +142,9 @@ fun OtpScreen(
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             enabled = !isLoading && timeRemaining > 0 && !isMaxAttemptsExceeded,
-            isError = errorMessage != null  // ← Show error state
+            isError = errorMessage != null
         )
 
-        // Error Message
         if (errorMessage != null) {
             Text(
                 text = errorMessage,
@@ -159,12 +155,11 @@ fun OtpScreen(
             )
         }
 
-        // Verify Button
         Button(
             onClick = {
                 if (otp.text.length == 6) {
                     onVerifyOtp(email, otp.text)
-                    keyboardController?.hide()  // Close keyboard when verifying
+                    keyboardController?.hide()
                 }
             },
             modifier = Modifier
@@ -184,12 +179,11 @@ fun OtpScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Resend OTP Button
         TextButton(
             onClick = {
                 otp = TextFieldValue("")
                 onResendOtp(email)
-                keyboardController?.hide()  // Close keyboard on resend
+                keyboardController?.hide()
             },
             enabled = !isLoading
         ) {

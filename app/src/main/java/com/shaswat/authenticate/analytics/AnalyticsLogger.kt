@@ -12,13 +12,11 @@ class AnalyticsLogger(context: Context) {
     private val firebaseAnalytics: FirebaseAnalytics = Firebase.analytics
 
     companion object {
-        // Event names - following Firebase naming conventions
         private const val EVENT_OTP_GENERATED = "otp_generated"
         private const val EVENT_OTP_VALIDATION_SUCCESS = "otp_validation_success"
         private const val EVENT_OTP_VALIDATION_FAILURE = "otp_validation_failure"
         private const val EVENT_USER_LOGOUT = "user_logout"
 
-        // Parameter names
         private const val PARAM_EMAIL = "email"
         private const val PARAM_FAILURE_REASON = "failure_reason"
     }
@@ -63,7 +61,6 @@ class AnalyticsLogger(context: Context) {
 
     /**
      * Masks email for privacy
-     * Example: john.doe@gmail.com -> j***@gmail.com
      */
     private fun maskEmail(email: String): String {
         val parts = email.split("@")

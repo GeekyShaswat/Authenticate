@@ -10,7 +10,7 @@ class OtpManager {
 
     companion object {
         private const val OTP_LENGTH = 6
-        private const val OTP_EXPIRY_DURATION = 60_000L // 60 seconds in milliseconds
+        private const val OTP_EXPIRY_DURATION = 60_000L
     }
 
     /**
@@ -57,7 +57,6 @@ class OtpManager {
             otpStorage.remove(email)
             ValidationResult.Success
         } else {
-            // Increment attempts
             val newAttempts = otpData.attempts + 1
             otpStorage[email] = otpData.copy(attempts = newAttempts)
 
@@ -66,7 +65,6 @@ class OtpManager {
             if (remainingAttempts > 0) {
                 ValidationResult.Incorrect(remainingAttempts = remainingAttempts)
             } else {
-                // This was the last attempt, now exceeded
                 ValidationResult.MaxAttemptsExceeded
             }
         }

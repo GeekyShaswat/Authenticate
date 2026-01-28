@@ -27,7 +27,7 @@ fun SessionScreen(
     LaunchedEffect(loginTime) {
         while (true) {
             val currentTime = System.currentTimeMillis()
-            sessionDuration = (currentTime - loginTime) / 1000 // Convert to seconds
+            sessionDuration = (currentTime - loginTime) / 1000
             delay(1000L) // Update every second
         }
     }
@@ -68,7 +68,6 @@ fun SessionScreen(
             modifier = Modifier.padding(bottom = 32.dp)
         )
 
-        // Session Info Card
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -112,7 +111,6 @@ fun SessionScreen(
             }
         }
 
-        // Logout Button
         Button(
             onClick = onLogout,
             modifier = Modifier

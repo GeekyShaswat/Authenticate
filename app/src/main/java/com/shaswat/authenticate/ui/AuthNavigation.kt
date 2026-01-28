@@ -11,7 +11,6 @@ fun AuthNavigation(
     viewModel: AuthViewModel = viewModel()
 ) {
     val authState by viewModel.authState.collectAsState()
-    val otpValue = viewModel.otp.collectAsState().value
 
     when (val state = authState) {
         is AuthState.Initial -> {
@@ -24,7 +23,6 @@ fun AuthNavigation(
         }
 
         is AuthState.Loading -> {
-            // Show loading on current screen
             when {
                 state == AuthState.Loading -> {
                     LoginScreen(
